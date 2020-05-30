@@ -40,6 +40,9 @@ import Web.Slack.Util
 -- text
 import Data.Text (Text)
 
+-- re-export
+import Web.Slack.Conversation (Purpose (..), Topic (..))
+
 
 -- |
 --
@@ -69,47 +72,7 @@ data Channel =
 --
 --
 
-data Purpose =
-  Purpose
-    { purposeValue :: Text
-    , purposeCreator :: Text
-    , purposeLastSet :: Integer
-    }
-  deriving (Eq, Generic, Show)
-
-
--- |
---
---
-
-data Topic =
-  Topic
-    { topicValue :: Text
-    , topicCreator :: Text
-    , topicLastSet :: Integer
-    }
-  deriving (Eq, Generic, Show)
-
-
--- |
---
---
-
 $(deriveFromJSON (jsonOpts "channel") ''Channel)
-
-
--- |
---
---
-
-$(deriveJSON (jsonOpts "purpose") ''Purpose)
-
-
--- |
---
---
-
-$(deriveJSON (jsonOpts "topic") ''Topic)
 
 
 -- |

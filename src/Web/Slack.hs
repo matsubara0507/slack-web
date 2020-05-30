@@ -22,6 +22,9 @@ module Web.Slack
   , channelsCreate
   , channelsList
   , channelsHistory
+  , conversationsCreate
+  , conversationsList
+  , conversationsHistory
   , groupsHistory
   , groupsList
   , historyFetchAll
@@ -75,6 +78,7 @@ import qualified Web.Slack.Auth as Auth
 import qualified Web.Slack.Channel as Channel
 import qualified Web.Slack.Chat as Chat
 import qualified Web.Slack.Common as Common
+import qualified Web.Slack.Conversation as Conversation
 import qualified Web.Slack.Im as Im
 import qualified Web.Slack.Group as Group
 import qualified Web.Slack.User as User
@@ -166,6 +170,21 @@ type Api =
       :> AuthProtect "token"
       :> ReqBody '[FormUrlEncoded] Chat.PostMsgReq
       :> Post '[JSON] (ResponseJSON Chat.PostMsgRsp)
+  :<|>
+    "conversations.create"
+      :> AuthProtect "token"
+      :> ReqBody '[FormUrlEncoded] Conversation.CreateReq
+      :> Post '[JSON] (ResponseJSON Conversation.CreateRsp)
+  :<|>
+    "conversations.history"
+      :> AuthProtect "token"
+      :> ReqBody '[FormUrlEncoded] Common.HistoryReq
+      :> Post '[JSON] (ResponseJSON Common.HistoryRsp)
+  :<|>
+    "conversations.list"
+      :> AuthProtect "token"
+      :> ReqBody '[FormUrlEncoded] Conversation.ListReq
+      :> Post '[JSON] (ResponseJSON Conversation.ListRsp)
   :<|>
     "groups.history"
       :> AuthProtect "token"
@@ -314,6 +333,64 @@ chatPostMessage_
   :: AuthenticatedRequest (AuthProtect "token")
   -> Chat.PostMsgReq
   -> ClientM (ResponseJSON Chat.PostMsgRsp)
+
+-- |
+--
+-- Create a conversation.
+--
+-- <https://api.slack.com/methods/conversations.create>
+
+conversationsCreate
+  :: (MonadReader env m, HasManager env, HasToken env, MonadIO m)
+  => Conversation.CreateReq
+  -> m (Response Conversation.CreateRsp)
+conversationsCreate createReq = do
+  authR <- mkSlackAuthenticateReq
+  run (conversationsCreate_ authR createReq)
+
+conversationsCreate_
+  :: AuthenticatedRequest (AuthProtect "token")
+  -> Conversation.CreateReq
+  -> ClientM (ResponseJSON Conversation.CreateRsp)
+
+-- |
+--
+-- Retrieve conversation list.
+--
+-- <https://api.slack.com/methods/conversations.list>
+
+conversationsList
+  :: (MonadReader env m, HasManager env, HasToken env, MonadIO m)
+  => Conversation.ListReq
+  -> m (Response Conversation.ListRsp)
+conversationsList listReq = do
+  authR <- mkSlackAuthenticateReq
+  run (conversationsList_ authR listReq)
+
+conversationsList_
+  :: AuthenticatedRequest (AuthProtect "token")
+  -> Conversation.ListReq
+  -> ClientM (ResponseJSON Conversation.ListRsp)
+
+-- |
+--
+-- Retrieve conversation history.
+-- Consider using 'historyFetchAll' in combination with this function
+--
+-- <https://api.slack.com/methods/conversations.history>
+
+conversationsHistory
+  :: (MonadReader env m, HasManager env, HasToken env, MonadIO m)
+  => Common.HistoryReq
+  -> m (Response Common.HistoryRsp)
+conversationsHistory histReq = do
+  authR <- mkSlackAuthenticateReq
+  run (conversationsHistory_ authR histReq)
+
+conversationsHistory_
+  :: AuthenticatedRequest (AuthProtect "token")
+  -> Common.HistoryReq
+  -> ClientM (ResponseJSON Common.HistoryRsp)
 
 -- |
 --
@@ -541,6 +618,9 @@ apiTest_
   :<|> channelsHistory_
   :<|> channelsList_
   :<|> chatPostMessage_
+  :<|> conversationsCreate_
+  :<|> conversationsHistory_
+  :<|> conversationsList_
   :<|> groupsHistory_
   :<|> groupsList_
   :<|> imHistory_
