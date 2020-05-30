@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 ----------------------------------------------------------------------
@@ -13,6 +14,7 @@
 
 module Web.Slack.Channel
   ( Channel(..)
+  , fromConversation
   , Purpose(..)
   , Topic(..)
   , CreateReq(..)
@@ -35,6 +37,7 @@ import Web.FormUrlEncoded
 
 -- slack-web
 import Web.Slack.Common
+import Web.Slack.Conversation (Conversation(..))
 import Web.Slack.Util
 
 -- text
@@ -66,6 +69,29 @@ data Channel =
     , channelPurpose :: Purpose
     }
   deriving (Eq, Generic, Show)
+
+
+fromConversation :: Conversation -> Maybe Channel
+fromConversation conversation =
+  if conversationIsChannel conversation == Just True then do
+    channelName <- conversationName conversation
+    channelCreated <- conversationCreated conversation
+    channelCreator <- conversationCreator conversation
+    channelIsArchived <- conversationIsArchived conversation
+    channelIsMember <- conversationIsMember conversation
+    channelIsGeneral <- conversationIsGeneral conversation
+    channelTopic <- conversationTopic conversation
+    channelPurpose <- conversationPurpose conversation
+    pure $ Channel {..}
+  else
+    Nothing
+  where
+    channelId = conversationId conversation
+    channelLastRead = conversationLastRead conversation
+    channelLatest = conversationLatest conversation
+    channelUnreadCount = conversationUnreadCount conversation
+    channelUnreadCountDisplay = conversationUnreadCountDisplay conversation
+    channelMembers = [] -- please use conversations.members api
 
 
 -- |

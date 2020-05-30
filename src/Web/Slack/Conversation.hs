@@ -40,9 +40,6 @@ import Web.Slack.Util
 -- text
 import Data.Text (Text)
 
--- time
-import Data.Time.Clock.POSIX
-
 
 -- |
 --
@@ -55,11 +52,11 @@ data Conversation =
     , conversationIsChannel :: Maybe Bool
     , conversationIsGroup :: Maybe Bool
     , conversationIsIm :: Maybe Bool
-    , conversationCreated :: Maybe POSIXTime
-    , conversationcreator :: Maybe UserId
+    , conversationCreated :: Maybe Integer
+    , conversationCreator :: Maybe UserId
     , conversationIsArchived :: Maybe Bool
     , conversationIsGeneral :: Maybe Bool
-    , conversationUnlinked :: Maybe Int
+    , conversationUnlinked :: Maybe Integer
     , conversationNameNormalized :: Maybe Text
     , conversationIsReadOnly :: Maybe Bool
     , conversationIsShared :: Maybe Bool
@@ -74,8 +71,11 @@ data Conversation =
     , conversationTopic :: Maybe Topic
     , conversationPurpose :: Maybe Purpose
     , conversationPreviousNames :: Maybe [Text]
-    , conversationNumMembers :: Maybe Int
+    , conversationNumMembers :: Maybe Integer
     , conversationLocale :: Maybe Text
+    , conversationLatest :: Maybe Text
+    , conversationUnreadCount :: Maybe Integer
+    , conversationUnreadCountDisplay :: Maybe Integer
     , conversationUser :: Maybe UserId
     , conversationIsUserDeleted :: Maybe Bool
     }

@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -14,6 +15,7 @@
 
 module Web.Slack.Im
   ( Im(..)
+  , fromConversation
   , ListRsp(..)
   )
   where
@@ -27,6 +29,7 @@ import GHC.Generics (Generic)
 -- slack-web
 import Web.Slack.Util
 import Web.Slack.Common
+import Web.Slack.Conversation (Conversation(..))
 
 -- text
 import Data.Text (Text)
@@ -43,6 +46,19 @@ data Im =
     , imIsUserDeleted :: Bool
     }
   deriving (Eq, Generic, Show)
+
+fromConversation :: Conversation -> Maybe Im
+fromConversation conversation =
+  if conversationIsIm conversation == Just True then do
+    imIsIm <- conversationIsIm conversation
+    imUser <- conversationUser conversation
+    imCreated <- fromInteger <$> conversationCreated conversation
+    imIsUserDeleted <- conversationIsUserDeleted conversation
+    pure $ Im {..}
+  else
+    Nothing
+  where
+    imId = conversationId conversation
 
 $(deriveFromJSON (jsonOpts "im") ''Im)
 

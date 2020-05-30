@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 ----------------------------------------------------------------------
@@ -13,6 +14,7 @@
 
 module Web.Slack.Group
   ( Group(..)
+  , fromConversation
   , ListRsp(..)
   )
   where
@@ -25,6 +27,7 @@ import GHC.Generics (Generic)
 
 -- slack-web
 import Web.Slack.Common
+import Web.Slack.Conversation (Conversation(..))
 import Web.Slack.Util
 
 -- text
@@ -44,6 +47,21 @@ data Group =
     , groupMembers :: [UserId]
     }
   deriving (Eq, Generic, Show)
+
+fromConversation :: Conversation -> Maybe Group
+fromConversation conversation =
+  if conversationIsPrivate conversation == Just True then do
+    groupName <- conversationName conversation
+    groupIsMpim <- conversationIsMpim conversation
+    groupCreated <- fromInteger <$> conversationCreated conversation
+    groupCreator <- conversationCreator conversation
+    groupIsArchived <- conversationIsArchived conversation
+    pure $ Group {..}
+  else
+    Nothing
+  where
+    groupId = conversationId conversation
+    groupMembers = [] -- please use conversations.members api
 
 $(deriveFromJSON (jsonOpts "group") ''Group)
 
