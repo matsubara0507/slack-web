@@ -43,6 +43,10 @@ import Data.Text (Text)
 
 -- |
 --
+-- A Conversation type contains information about a channel-like thing in Slack.
+-- It might be a public channel, a private channel, a direct message, or a multi-person direct message.
+--
+-- <https://api.slack.com/types/conversation>
 --
 
 data Conversation =
