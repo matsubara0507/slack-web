@@ -50,7 +50,7 @@ data Group =
 
 fromConversation :: Conversation -> Maybe Group
 fromConversation conversation =
-  if conversationIsPrivate conversation == Just True then do
+  if conversationIsGroup conversation == Just True then do
     groupName <- conversationName conversation
     groupIsMpim <- conversationIsMpim conversation
     groupCreated <- fromInteger <$> conversationCreated conversation
